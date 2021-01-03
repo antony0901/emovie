@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using MovieServices.Infrastructure;
+using Steeltoe.Discovery.Client;
+using Steeltoe.Discovery.Eureka;
 using Steeltoe.Extensions.Configuration.ConfigServer;
 
 namespace MovieServices
@@ -23,7 +25,6 @@ namespace MovieServices
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

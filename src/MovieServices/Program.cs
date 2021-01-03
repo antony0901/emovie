@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Steeltoe.Discovery.Client;
+using Steeltoe.Discovery.Eureka;
 using Steeltoe.Extensions.Configuration.ConfigServer;
 
 namespace MovieServices
@@ -21,16 +24,22 @@ namespace MovieServices
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((hostingContext, config) => 
+                .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     var env = hostingContext.HostingEnvironment;
+                    var logFactory = LoggerFactory.Create((builder) => 
+                    {
+                        builder.AddConsole();
+                    });
+
                     config.Sources.Clear();
                     config.SetBasePath(env.ContentRootPath)
                         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                        .AddConfigServer(env.EnvironmentName)
+                        .AddConfigServer(env.EnvironmentName, logFactory)
                         .AddEnvironmentVariables();
                 })
+                .AddServiceDiscovery(options => options.UseEureka())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
